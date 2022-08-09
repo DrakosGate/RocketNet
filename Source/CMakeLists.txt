@@ -14,6 +14,10 @@ target_link_libraries(RocketNetTest RocketNet)
 
 # Define a function to help with adding new tests
 function (add_test_ex name)
+
+    # TODO: add customization here (e.g. specifying a custom COMMAND for add_test)
+    # cmake_parse_arguments(TEST "" "" "COMMAND" ${ARGN})
+
     add_test(NAME ${name} COMMAND RocketNetTest ${ARGN})
     set_property(TEST ${name} PROPERTY FAIL_REGULAR_EXPRESSION "error")
 endfunction()
