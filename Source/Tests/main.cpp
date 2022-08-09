@@ -1,6 +1,7 @@
-#include "library.h"
 #include <iostream>
 #include <string>
+
+#include "library.h"
 
 int main(int argc, char** argv)
 {

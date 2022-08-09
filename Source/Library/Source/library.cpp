@@ -1,7 +1,7 @@
-#include "library.h"
 
 #include <iostream>
 #include "RakNet/RakPeerInterface.h"
+#include "library.h"
 
 void hello() {
     RakNet::RakPeerInterface *peer = RakNet::RakPeerInterface::GetInstance();
