@@ -1,9 +1,12 @@
-//
-// Created by christopher.howlett on 09/08/2022.
-//
 #include "library.h"
+#include <iostream>
+#include <string>
 
-int main()
+int main(int argc, char** argv)
 {
     hello();
+
+    if (argc > 1 && argv[1] == std::string("failOnPurpose")) {
+        std::cout << "error: lol";
+    }
 }
