@@ -1,3 +1,10 @@
-#find_library(RakNet)
-add_subdirectory(RakNet)
 set(RAKNET_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/RakNet/include PARENT_SCOPE)
+set(RAKNET_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/RakNet/Intermediate/Debug/Lib/LibStatic)
+#set(RAKNET_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/RakNet/Intermediate/${CMAKE_BUILD_TYPE}/Lib/LibStatic)
+
+find_library(RAKNET_LIBRARY NO_DEFAULT_PATH
+    NAMES RakNetLibStatic
+    PATHS ${RAKNET_LIB_DIR}
+)
+
+set(RAKNET_LIBRARY ${RAKNET_LIBRARY} PARENT_SCOPE)
