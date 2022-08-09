@@ -1,20 +1,19 @@
 # Create the RocketNet test executable
-add_executable(RocketNetTest main.cpp)
-target_link_libraries(RocketNetTest RocketNet)
+add_executable(RocketNetHost Host.cpp)
+target_link_libraries(RocketNetHost RocketNet)
+
+add_executable(RocketNetClient Client.cpp)
+target_link_libraries(RocketNetClient RocketNet)
 
 # Define a function to help with adding new tests
-function (add_test_ex name)
+function (add_test_ex name command)
 
     # TODO: add customization here (e.g. specifying a custom COMMAND for add_test)
     # cmake_parse_arguments(prefix, bool_args, value_args, list_args, ${ARGN})
     # always prefix with TEST_<NAME>
-    cmake_parse_arguments(TEST "" "COMMAND" "" ${ARGN})
+    cmake_parse_arguments(TEST "" "" "PARAMS" ${ARGN})
 
-    if (TEST_COMMAND)
-        add_test(NAME ${name} COMMAND ${TEST_COMMAND} ${ARGN})
-    else()
-        add_test(NAME ${name} COMMAND RocketNetTest ${ARGN})
-    endif()
+    add_test(NAME ${name} COMMAND ${command} ${TEST_PARAMS})
 
     # "error" in any test log counts as a failure
     set_tests_properties(${name}
