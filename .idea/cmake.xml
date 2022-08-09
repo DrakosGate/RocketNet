@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="Intermediate/Debug" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DRAKNET_GENERATE_INCLUDE_ONLY_DIR:BOOL=TRUE" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="Intermediate/Release" CONFIG_NAME="Release" GENERATION_OPTIONS="-DRAKNET_GENERATE_INCLUDE_ONLY_DIR:BOOL=TRUE" />
+      <configuration PROFILE_NAME="RelWithDebInfo" ENABLED="true" GENERATION_DIR="Intermediate/RelWithDebInfo" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-DRAKNET_GENERATE_INCLUDE_ONLY_DIR:BOOL=TRUE" />
+      <configuration PROFILE_NAME="MinSizeRel" ENABLED="true" GENERATION_DIR="Intermediate/MinSizeRel" CONFIG_NAME="MinSizeRel" GENERATION_OPTIONS="-DRAKNET_GENERATE_INCLUDE_ONLY_DIR:BOOL=TRUE" />
+    </configurations>
+  </component>
+</project>

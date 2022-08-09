@@ -1,0 +1,4 @@
+Intermediate/
+.idea/*
+!.idea/cmake.xml
+!.idea/vcs.xml
