@@ -83,14 +83,14 @@ bool RocketNetInstance::ProcessPendingHostPackets()
 				break;
 			case ID_REMOTE_NEW_INCOMING_CONNECTION:
 				printf("Another client has connected.\n");
-				ConnectionAddresses.push_back(Packet->systemAddress);
+				Connections.emplace_back(Packet->systemAddress);
 				break;
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 				printf("Our connection request has been accepted.\n");
 				break;
 			case ID_NEW_INCOMING_CONNECTION:
 				printf("A connection is incoming.\n");
-				ConnectionAddresses.push_back(Packet->systemAddress);
+				Connections.emplace_back(Packet->systemAddress);
 				ConnectionSuccess = true;
 				break;
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -131,6 +131,7 @@ bool RocketNetInstance::ProcessPendingClientPackets()
 				break;
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 				printf("Our connection request has been accepted.\n");
+				printf("Type |quit| to exit or |setname: name| to change your name.\n");
 				HostConnectionAddress = Packet->systemAddress;
 				assert(HostConnectionAddress.size() != 0);
 				ConnectionSuccess = true;
@@ -162,6 +163,24 @@ void RocketNetInstance::OnRocketNetMessageReceived(RakNet::Packet* Packet)
 	switch (Packet->data[0])
 	{
 		case RocketNetReservedIDStart:
+			assert(false);
+			break;
+		case RocketNetChangeName:
+		{
+			RakNet::RakString InString;
+			RakNet::BitStream InStream(Packet->data, Packet->length, false);
+			InStream.IgnoreBytes(sizeof(RakNet::MessageID));
+			InStream.Read(InString);
+
+			const auto SenderConnection = std::find_if(std::begin(Connections), std::end(Connections), [&Packet](const TConnectionInfo& Connection){ return Connection.Address == Packet->systemAddress; });
+			if (SenderConnection != std::end(Connections))
+			{
+				SenderConnection->NameOverride = InString.C_String();
+				std::cout << std::format("Player {} name changed to {}", SenderConnection->Address.systemIndex, SenderConnection->NameOverride) << std::endl;
+			}
+		}
+		break;
+		case RocketNetSendMessage:
 		{
 			RakNet::RakString InString;
 			RakNet::BitStream InStream(Packet->data, Packet->length, false);
@@ -176,18 +195,20 @@ void RocketNetInstance::OnRocketNetMessageReceived(RakNet::Packet* Packet)
 			// Message from a client connection
 			else
 			{
-				// Pass the message on to other clients except for the one that sent the message
-				const auto SenderID = std::find(std::begin(ConnectionAddresses), std::end(ConnectionAddresses), Packet->systemAddress);
-				if (SenderID != std::end(ConnectionAddresses))
+				const auto SenderConnection = std::find_if(std::begin(Connections), std::end(Connections), [&Packet](const TConnectionInfo& Connection){ return Connection.Address == Packet->systemAddress; });
+				if (SenderConnection != std::end(Connections))
 				{
-					const int SenderIndex = SenderID->systemIndex;
-					const std::string Response = std::format("Player {} says {}", SenderIndex, InString.C_String());
+					// Add player name to message before sending to other players
+					const std::string SenderName = SenderConnection->NameOverride.length() > 0 ? SenderConnection->NameOverride : std::format("Player {}", SenderConnection->Address.systemIndex);
+					const std::string Response = std::format("{} says {}", SenderName, InString.C_String());
 					std::cout << Response << std::endl;
-					for (auto& Address: ConnectionAddresses)
+
+					// Pass the message on to other clients except for the one that sent the message
+					for (auto& ConnectionInfo : Connections)
 					{
-						if (Address != Packet->systemAddress)
+						if (ConnectionInfo.Address != Packet->systemAddress)
 						{
-							SendDataToConnection(Address, Response.c_str(), true);
+							SendDataToConnection(ConnectionInfo.Address, Response.c_str(), true, RocketNetSendMessage);
 						}
 					}
 				}

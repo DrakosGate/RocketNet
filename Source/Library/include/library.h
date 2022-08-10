@@ -14,7 +14,16 @@ const unsigned short MaxClients = 4;
 // Todo: This should be controlled by the plugin?
 enum ERocketNetReservedMessageIDs
 {
-	RocketNetReservedIDStart = ID_USER_PACKET_ENUM
+	RocketNetReservedIDStart = ID_USER_PACKET_ENUM,
+	RocketNetSendMessage,
+	RocketNetChangeName
+};
+
+struct TConnectionInfo
+{
+	TConnectionInfo(RakNet::SystemAddress& Address) : Address(Address) {}
+	RakNet::SystemAddress Address;
+	std::string NameOverride = "";
 };
 
 class RocketNetInstance
@@ -39,8 +48,8 @@ public:
 	void OnRocketNetMessageReceived(RakNet::Packet* Packet);
 
 	// Send packets
-	void SendDataToConnection(RakNet::SystemAddress& Address, const char* Data, bool bReliable, int PacketID = RocketNetReservedIDStart);
-	void SendDataToHost(const char* Data, bool bReliable, int PacketID = RocketNetReservedIDStart);
+	void SendDataToConnection(RakNet::SystemAddress& Address, const char* Data, bool bReliable, int PacketID);
+	void SendDataToHost(const char* Data, bool bReliable, int PacketID);
 
 protected:
 	// Singleton protection
@@ -53,7 +62,7 @@ protected:
 protected:
 	RakNet::RakPeerInterface *Peer = nullptr;
 	RakNet::SystemAddress HostConnectionAddress;
-	std::vector<RakNet::SystemAddress> ConnectionAddresses;
+	std::vector<TConnectionInfo> Connections;
 	bool ConnectionSuccess = false;
 
 };

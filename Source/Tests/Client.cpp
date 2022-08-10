@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <thread>
 #include <Gets.h>
 
 #include "library.h"
@@ -23,8 +24,25 @@ int main(int argc, char** argv)
 
 	if (bShouldRun)
 	{
-		bool bRunning = true;
+		// Input thread
 		char Message[512];
+		bool bInputReceived = false;
+		bool bListenForInput = true;
+		std::thread inputThread([&]()
+		{
+			while (bListenForInput)
+			{
+				if (!bInputReceived)
+				{
+					Gets(Message, sizeof(Message));
+					bInputReceived = true;
+				}
+			}
+		});
+		inputThread.detach();
+
+		// Packet processing
+		bool bRunning = true;
 		while (bRunning)
 		{
 			Sleep(30);
@@ -32,20 +50,42 @@ int main(int argc, char** argv)
 
 			if (NetInstance.IsConnected())
 			{
-				Gets(Message, sizeof(Message));
-				if (strcmp(Message, "quit") == 0)
+				if (bInputReceived)
 				{
-					bRunning = false;
-				}
-				else
-				{
-					if (strcmp(Message, "") != 0)
+					const std::string Input = Message;
+					if (Input != "")
 					{
-						NetInstance.SendDataToHost(Message, true);
+						const std::string SetNameCommand("setname: ");
+						const int NameStart = Input.find(SetNameCommand);
+						if (NameStart != std::string::npos)
+						{
+							std::string Name = Input.substr(SetNameCommand.length());
+							if (Name.length() != 0)
+							{
+								NetInstance.SendDataToHost(Name.c_str(), true, RocketNetChangeName);
+								bInputReceived = false;
+								continue;
+							}
+						}
+
+						if (Input == "quit")
+						{
+							bRunning = false;
+						}
+						else
+						{
+							if (strcmp(Message, "") != 0)
+							{
+								NetInstance.SendDataToHost(Message, true, RocketNetSendMessage);
+							}
+						}
 					}
+					bInputReceived = false;
 				}
 			}
 		}
+
+		bListenForInput = false;
 	}
 
 	NetInstance.EndConnection();
