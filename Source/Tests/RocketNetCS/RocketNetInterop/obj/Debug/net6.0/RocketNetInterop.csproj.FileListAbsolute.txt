@@ -1,0 +1,12 @@
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\bin\Debug\net6.0\RocketNetInterop.deps.json
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\bin\Debug\net6.0\RocketNetInterop.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\bin\Debug\net6.0\RocketNetInterop.pdb
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.csproj.AssemblyReference.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.AssemblyInfoInputs.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.AssemblyInfo.cs
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.csproj.CoreCompileInputs.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\refint\RocketNetInterop.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\RocketNetInterop.pdb
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\obj\Debug\net6.0\ref\RocketNetInterop.dll

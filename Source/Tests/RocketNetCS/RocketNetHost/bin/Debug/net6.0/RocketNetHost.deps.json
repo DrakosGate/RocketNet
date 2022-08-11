@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "RocketNetHost/1.0.0": {
+        "dependencies": {
+          "RocketNetInterop": "1.0.0"
+        },
+        "runtime": {
+          "RocketNetHost.dll": {}
+        }
+      },
+      "RocketNetInterop/1.0.0": {
+        "runtime": {
+          "RocketNetInterop.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RocketNetHost/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "RocketNetInterop/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

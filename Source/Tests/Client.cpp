@@ -2,18 +2,40 @@
 #include <string>
 #include <thread>
 #include <Gets.h>
+#include <assert.h>
 
 #include "library.h"
+
+void HandlePendingPackets(std::vector<TPendingRocketNetPacket>& PendingPackets)
+{
+	for (auto& packet : PendingPackets)
+	{
+		switch (packet.packetID)
+		{
+			// Packets clients shouldn't be receiving
+			case RocketNetReservedIDStart:
+			case RocketNetChangeName:
+				assert(false);
+				break;
+			// Packets clients need to handle
+			case RocketNetSendMessage:
+				{
+					std::cout << packet.data << std::endl;
+				}
+				break;
+		}
+	}
+}
 
 int main(int argc, char** argv)
 {
 	std::cin.ignore();
 
-	RocketNetInstance& NetInstance = RocketNetInstance::GetInstance();
-	std::string ErrorMessage = NetInstance.StartClient(DefaultServerAddress, DefaultServerPort, "");
-	if (ErrorMessage.size() != 0)
+	RocketNetInstance& netInstance = RocketNetInstance::GetInstance();
+	std::string errorMessage = netInstance.StartClient(DefaultServerAddress, DefaultServerPort, "");
+	if (errorMessage.size() != 0)
 	{
-		std::cout << ErrorMessage.c_str();
+		std::cout << errorMessage.c_str();
 	}
 
 	bool bShouldRun = true;
@@ -25,7 +47,7 @@ int main(int argc, char** argv)
 	if (bShouldRun)
 	{
 		// Input thread
-		char Message[512];
+		char message[512];
 		bool bInputReceived = false;
 		bool bListenForInput = true;
 		std::thread inputThread([&]()
@@ -34,7 +56,7 @@ int main(int argc, char** argv)
 			{
 				if (!bInputReceived)
 				{
-					Gets(Message, sizeof(Message));
+					Gets(message, sizeof(message));
 					bInputReceived = true;
 				}
 			}
@@ -46,37 +68,39 @@ int main(int argc, char** argv)
 		while (bRunning)
 		{
 			Sleep(30);
-			NetInstance.ProcessPendingClientPackets();
+			netInstance.ProcessPendingClientPackets();
+			HandlePendingPackets(netInstance.FetchPendingPackets());
+			netInstance.ClearPendingPackets();
 
-			if (NetInstance.IsConnected())
+			if (netInstance.IsConnected())
 			{
 				if (bInputReceived)
 				{
-					const std::string Input = Message;
-					if (Input != "")
+					const std::string input = message;
+					if (input != "")
 					{
 						const std::string SetNameCommand("setname: ");
-						const int NameStart = Input.find(SetNameCommand);
-						if (NameStart != std::string::npos)
+						const int nameStart = input.find(SetNameCommand);
+						if (nameStart != std::string::npos)
 						{
-							std::string Name = Input.substr(SetNameCommand.length());
+							std::string Name = input.substr(SetNameCommand.length());
 							if (Name.length() != 0)
 							{
-								NetInstance.SendDataToHost(Name.c_str(), true, RocketNetChangeName);
+								netInstance.SendDataToHost(Name.c_str(), true, RocketNetChangeName);
 								bInputReceived = false;
 								continue;
 							}
 						}
 
-						if (Input == "quit")
+						if (input == "quit")
 						{
 							bRunning = false;
 						}
 						else
 						{
-							if (strcmp(Message, "") != 0)
+							if (strcmp(message, "") != 0)
 							{
-								NetInstance.SendDataToHost(Message, true, RocketNetSendMessage);
+								netInstance.SendDataToHost(message, true, RocketNetSendMessage);
 							}
 						}
 					}
@@ -88,5 +112,5 @@ int main(int argc, char** argv)
 		bListenForInput = false;
 	}
 
-	NetInstance.EndConnection();
+	netInstance.EndConnection();
 }

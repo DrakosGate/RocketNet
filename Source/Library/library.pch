@@ -1,0 +1,9 @@
+#pragma once
+
+#if IS_WINDOWS
+#define EXPORT_INLINE inline
+#else
+#define EXPORT_INLINE
+#endif
+
+#define CSHARP [[maybe_unused]]

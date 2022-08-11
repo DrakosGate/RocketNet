@@ -1,0 +1,12 @@
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\bin\Debug\net6.0\RocketNet.deps.json
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\bin\Debug\net6.0\RocketNet.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\bin\Debug\net6.0\RocketNet.pdb
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.csproj.AssemblyReference.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.GeneratedMSBuildEditorConfig.editorconfig
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.AssemblyInfoInputs.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.AssemblyInfo.cs
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.csproj.CoreCompileInputs.cache
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\refint\RocketNet.dll
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\RocketNet.pdb
+C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNet\obj\Debug\net6.0\ref\RocketNet.dll

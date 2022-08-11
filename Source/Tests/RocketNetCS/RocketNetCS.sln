@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketNetClient", "RocketNetClient\RocketNetClient.csproj", "{210D38B1-6A92-4D90-8593-61B8827EF9F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketNetHost", "RocketNetHost\RocketNetHost.csproj", "{BE935C7B-05A9-45A3-87AF-0DB1F341B853}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RocketNetInterop", "RocketNetInterop\RocketNetInterop.csproj", "{304C4804-6331-4E88-8BC3-69B942884D16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{210D38B1-6A92-4D90-8593-61B8827EF9F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{210D38B1-6A92-4D90-8593-61B8827EF9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{210D38B1-6A92-4D90-8593-61B8827EF9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{210D38B1-6A92-4D90-8593-61B8827EF9F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE935C7B-05A9-45A3-87AF-0DB1F341B853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE935C7B-05A9-45A3-87AF-0DB1F341B853}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE935C7B-05A9-45A3-87AF-0DB1F341B853}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE935C7B-05A9-45A3-87AF-0DB1F341B853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{304C4804-6331-4E88-8BC3-69B942884D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{304C4804-6331-4E88-8BC3-69B942884D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{304C4804-6331-4E88-8BC3-69B942884D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{304C4804-6331-4E88-8BC3-69B942884D16}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
