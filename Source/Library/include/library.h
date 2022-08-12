@@ -25,8 +25,8 @@ enum ERocketNetReservedMessageIDs
 struct TConnectionInfo
 {
 	TConnectionInfo(){}
-	TConnectionInfo(RakNet::SystemAddress& Address, ConnectionGUID ConnectionGUID)
-		: address(Address), connectionGUID(ConnectionGUID)
+	TConnectionInfo(RakNet::SystemAddress& address, ConnectionGUID ConnectionGUID)
+		: address(address), connectionGUID(ConnectionGUID)
 		{}
 	RakNet::SystemAddress address;
 	ConnectionGUID connectionGUID = InvalidGUID;
@@ -35,12 +35,15 @@ struct TConnectionInfo
 
 struct TPendingRocketNetPacket
 {
-	TPendingRocketNetPacket(const char* Data, int PacketID, ConnectionGUID SenderGUID)
-		: data(Data), packetID(PacketID), senderGUID(SenderGUID)
+	TPendingRocketNetPacket(const char* data, int32_t dataLength, int32_t packetID, ConnectionGUID senderGUID)
+		: data(data), dataLength(dataLength), packetID(packetID), senderGUID(senderGUID)
 		{}
+
+	// Don't change the order of variables in this struct - it's important that dataLength is element 0
+	int32_t dataLength = 0;
 	const char* data = nullptr;
-	int packetID = 0;
-	ConnectionGUID senderGUID = 0;
+	int32_t packetID = 0;
+	ConnectionGUID senderGUID = InvalidGUID;
 };
 
 class ROCKETNET_API RocketNetInstance
@@ -54,24 +57,21 @@ public:
 	}
 
 	// Open and close connection
-	std::string StartHost(uint16_t Port, const char* Password);
-	std::string StartClient(const char* Address, uint16_t Port, const char* Password);
+	const char* StartHost(uint16_t port, const char* password);
+	const char* StartClient(const char* address, uint16_t port, const char* password);
 	bool EndConnection();
 	[[nodiscard]] bool IsConnected() const { return bConnectionSuccess; }
 	[[nodiscard]] bool IsHost() const { return bIsHost && bConnectionSuccess; }
 	std::vector<ConnectionGUID> GetConnectionGUIDs() const;
 
 	// Receive packets
-	bool ProcessPendingHostPackets();
-	bool ProcessPendingClientPackets();
-	void HandleNewRocketNetPacket(RakNet::Packet* Packet);
 	std::vector<TPendingRocketNetPacket>& FetchPendingPackets();
 	void ClearPendingPackets(){ pendingPackets.clear(); }
 
 	// Send packets
-	void SendDataToConnection(const ConnectionGUID& connectionGUID, const char* Data, bool bReliable, int PacketID);
-	void SendDataToAllConnections(const char* Data, bool bReliable, int PacketID);
-	void SendDataToHost(const char* Data, bool bReliable, int PacketID);
+	void SendDataToConnection(const ConnectionGUID& connectionGUID, const char* data, bool bReliable, int packetID);
+	void SendDataToAllConnections(const char* data, bool bReliable, int packetID);
+	void SendDataToHost(const char* data, bool bReliable, int packetID);
 
 	// Used for testing
 	std::string GetNameForConnection(const ConnectionGUID& connectionGUID) const;
@@ -87,7 +87,8 @@ public:
 protected:
 	RocketNetInstance(){}
 	[[nodiscard]] const TConnectionInfo* GetConnectionInfoForGUID(const ConnectionGUID& connectionGuid) const;
-	void SendDataToConnection(const RakNet::SystemAddress& Address, const char* Data, bool bReliable, int PacketID);
+	void SendDataToConnection(const RakNet::SystemAddress& address, const char* data, bool bReliable, int packetID);
+	void HandleNewRocketNetPacket(RakNet::Packet* packet);
 
 	RakNet::RakPeerInterface *peer = nullptr;
 	std::vector<TConnectionInfo> connections;

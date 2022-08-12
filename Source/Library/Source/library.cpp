@@ -7,7 +7,7 @@
 #include "RakPeerInterface.h"
 #include "BitStream.h"
 
-std::string RocketNetInstance::StartHost(uint16_t Port, const char* Password)
+const char* RocketNetInstance::StartHost(uint16_t port, const char* password)
 {
 	if (peer != nullptr)
 	{
@@ -23,7 +23,7 @@ std::string RocketNetInstance::StartHost(uint16_t Port, const char* Password)
 		return "RocketNet Host Error: No RakNet Peer interface found";
 	}
 
-	RakNet::SocketDescriptor socketDescriptor(Port, "");
+	RakNet::SocketDescriptor socketDescriptor(port, "");
 	auto Result = peer->Startup(MaxClients, &socketDescriptor, 1);
 	if (Result != RakNet::StartupResult::RAKNET_STARTED)
 	{
@@ -33,12 +33,12 @@ std::string RocketNetInstance::StartHost(uint16_t Port, const char* Password)
 	peer->SetMaximumIncomingConnections(MaxClients);
 	bConnectionSuccess = true;
 	bIsHost = true;
-	//Peer->SetIncomingPassword(Password.c_str(), Password.size());
+	//Peer->SetIncomingPassword(password.c_str(), password.size());
 
 	return "";
 }
 
-std::string RocketNetInstance::StartClient(const char* Address, uint16_t Port, const char* Password)
+const char* RocketNetInstance::StartClient(const char* address, uint16_t port, const char* password)
 {
 	if (peer != nullptr)
 	{
@@ -60,10 +60,10 @@ std::string RocketNetInstance::StartClient(const char* Address, uint16_t Port, c
 		return "RocketNet Client Error: Could not start the RakNet Peer";
 	}
 
-	auto ConnectionResult = peer->Connect(Address, Port, Password, strlen(Password));
+	auto ConnectionResult = peer->Connect(address, port, password, strlen(password));
 	if (ConnectionResult != RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED)
 	{
-		return std::format("RocketNet Client Error: Could not connect to {}", Address);
+		return std::format("RocketNet Client Error: Could not connect to {}", address).c_str();
 	}
 
 	return "";
@@ -102,7 +102,7 @@ std::string RocketNetInstance::GetNameForConnection(const ConnectionGUID& connec
 	return "";
 }
 
-bool RocketNetInstance::ProcessPendingHostPackets()
+std::vector<TPendingRocketNetPacket>& RocketNetInstance::FetchPendingPackets()
 {
 	// Listen for packets while running
 	RakNet::Packet* Packet = nullptr;
@@ -110,6 +110,9 @@ bool RocketNetInstance::ProcessPendingHostPackets()
 	{
 		switch (Packet->data[0])
 		{
+			// --------------------------------------------------------------------------------------------
+			// ----- Host packets -----
+			// --------------------------------------------------------------------------------------------
 			case ID_REMOTE_DISCONNECTION_NOTIFICATION:
 				printf("Another client has disconnected.\n");
 				break;
@@ -120,16 +123,9 @@ bool RocketNetInstance::ProcessPendingHostPackets()
 				printf("Another client has connected.\n");
 				connections.emplace_back(Packet->systemAddress, Packet->guid.g);
 				break;
-			case ID_CONNECTION_REQUEST_ACCEPTED:
-				printf("Our connection request has been accepted.\n");
-				break;
 			case ID_NEW_INCOMING_CONNECTION:
 				printf("A connection is incoming.\n");
 				connections.emplace_back(Packet->systemAddress, Packet->guid.g);
-				bConnectionSuccess = true;
-				break;
-			case ID_NO_FREE_INCOMING_CONNECTIONS:
-				printf("The server is full.\n");
 				break;
 			case ID_DISCONNECTION_NOTIFICATION:
 				printf("A client has disconnected.\n");
@@ -137,76 +133,40 @@ bool RocketNetInstance::ProcessPendingHostPackets()
 			case ID_CONNECTION_LOST:
 				printf("A client lost the connection.\n");
 				break;
-			default:
-				// Handle RocketNet messages
-				HandleNewRocketNetPacket(Packet);
-				break;
-		}
-	}
-
-	return false;
-}
-
-bool RocketNetInstance::ProcessPendingClientPackets()
-{
-	// Listen for packets while running
-	RakNet::Packet* Packet = nullptr;
-	for (Packet = peer->Receive(); Packet != nullptr; peer->DeallocatePacket(Packet), Packet = peer->Receive())
-	{
-		switch (Packet->data[0])
-		{
-			case ID_REMOTE_DISCONNECTION_NOTIFICATION:
-				printf("Another client has disconnected.\n");
-				break;
-			case ID_REMOTE_CONNECTION_LOST:
-				printf("Another client has lost the connection.\n");
-				break;
-			case ID_REMOTE_NEW_INCOMING_CONNECTION:
-				printf("Another client has connected.\n");
-				break;
+			// --------------------------------------------------------------------------------------------
+			// ----- Client packets -----
+			// --------------------------------------------------------------------------------------------
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 				printf("Our connection request has been accepted.\n");
 				printf("Type |quit| to exit or |setname: name| to change your name.\n");
 				connections.emplace_back(Packet->systemAddress, Packet->guid.g);
 				bConnectionSuccess = true;
 				break;
-			case ID_NEW_INCOMING_CONNECTION:
-				printf("A connection is incoming.\n");
-				break;
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
 				printf("The server is full.\n");
 				break;
-			case ID_DISCONNECTION_NOTIFICATION:
-				printf("We have been disconnected.\n");
-				break;
-			case ID_CONNECTION_LOST:
-				printf("Connection lost.\n");
-				break;
+			// --------------------------------------------------------------------------------------------
+			// RocketNet packets - these are added to the pending packet list and passed back to the caller
+			// --------------------------------------------------------------------------------------------
 			default:
-				// Handle RocketNet messages
 				HandleNewRocketNetPacket(Packet);
 				break;
 		}
 	}
 
-	return false;
+	return pendingPackets;
 }
 
-void RocketNetInstance::HandleNewRocketNetPacket(RakNet::Packet* Packet)
+void RocketNetInstance::HandleNewRocketNetPacket(RakNet::Packet* packet)
 {
 	// Read and extract the data from the packet without the packet ID - this will be passed separately
-	RakNet::RakString InString;
-	RakNet::BitStream InStream(Packet->data, Packet->length, false);
-	InStream.IgnoreBytes(sizeof(RakNet::MessageID));
-	InStream.Read(InString);
+	RakNet::RakString inString;
+	RakNet::BitStream inStream(packet->data, packet->length, false);
+	inStream.IgnoreBytes(sizeof(RakNet::MessageID));
+	inStream.Read(inString);
 
 	// Add the extracted data with packet ID and sender GUID to the list of pending packets to be handled later
-	pendingPackets.emplace_back(TPendingRocketNetPacket(InString.C_String(), Packet->data[0], Packet->guid.g));
-}
-
-std::vector<TPendingRocketNetPacket>& RocketNetInstance::FetchPendingPackets()
-{
-	return pendingPackets;
+	pendingPackets.emplace_back(TPendingRocketNetPacket(inString.C_String(), inString.GetLength(), packet->data[0], packet->guid.g));
 }
 
 const TConnectionInfo* RocketNetInstance::GetConnectionInfoForGUID(const ConnectionGUID& connectionGuid) const
@@ -224,39 +184,39 @@ const TConnectionInfo* RocketNetInstance::GetConnectionInfoForGUID(const Connect
 	return nullptr;
 }
 
-void RocketNetInstance::SendDataToConnection(const ConnectionGUID& connectionGUID, const char* Data, bool bReliable, int PacketID)
+void RocketNetInstance::SendDataToConnection(const ConnectionGUID& connectionGUID, const char* data, bool bReliable, int packetID)
 {
 	const TConnectionInfo* connectionInfo = GetConnectionInfoForGUID(connectionGUID);
 	if (connectionInfo != nullptr)
 	{
-		SendDataToConnection(connectionInfo->address, Data, bReliable, PacketID);
+		SendDataToConnection(connectionInfo->address, data, bReliable, packetID);
 	}
 }
 
-void RocketNetInstance::SendDataToConnection(const RakNet::SystemAddress& Address, const char* Data, bool bReliable, int PacketID)
+void RocketNetInstance::SendDataToConnection(const RakNet::SystemAddress& address, const char* data, bool bReliable, int packetID)
 {
 	RakNet::BitStream outStream;
-	outStream.Write((RakNet::MessageID)PacketID);
-	outStream.Write(Data);
-	int Result = peer->Send(&outStream, HIGH_PRIORITY, bReliable ? RELIABLE_ORDERED : UNRELIABLE_SEQUENCED, 0, Address, false);
+	outStream.Write((RakNet::MessageID)packetID);
+	outStream.Write(data);
+	int Result = peer->Send(&outStream, HIGH_PRIORITY, bReliable ? RELIABLE_ORDERED : UNRELIABLE_SEQUENCED, 0, address, false);
 	assert(Result != 0);
 }
 
-void RocketNetInstance::SendDataToAllConnections(const char* Data, bool bReliable, int PacketID)
+void RocketNetInstance::SendDataToAllConnections(const char* data, bool bReliable, int packetID)
 {
 	assert(bIsHost);
 
 	for (const TConnectionInfo& Connection : connections)
 	{
-		SendDataToConnection(Connection.connectionGUID, Data, bReliable, PacketID);
+		SendDataToConnection(Connection.connectionGUID, data, bReliable, packetID);
 	}
 }
 
-void RocketNetInstance::SendDataToHost(const char* Data, bool bReliable, int PacketID)
+void RocketNetInstance::SendDataToHost(const char* data, bool bReliable, int packetID)
 {
 	assert(!bIsHost && connections.size() == 1);
 
-	SendDataToConnection(connections[0].connectionGUID, Data, bReliable, PacketID);
+	SendDataToConnection(connections[0].connectionGUID, data, bReliable, packetID);
 }
 
 void RocketNetInstance::HostSetConnectionName(const ConnectionGUID& connectionGUID, const std::string& name)

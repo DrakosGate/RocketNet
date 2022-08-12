@@ -67,7 +67,6 @@ int main(int argc, char **argv)
 		while (bRunning)
 		{
 			Sleep(30);
-			netInstance.ProcessPendingHostPackets();
 			HandlePendingPackets(netInstance.FetchPendingPackets());
 			netInstance.ClearPendingPackets();
 		}

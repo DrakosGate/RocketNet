@@ -1,0 +1,6 @@
+Intermediate/
+RocketNetClient/*.dll
+RocketNetHost/*.pdb
+.idea/*
+!.idea/cmake.xml
+!.idea/vcs.xml

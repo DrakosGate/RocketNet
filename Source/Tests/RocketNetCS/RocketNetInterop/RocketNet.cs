@@ -11,56 +11,81 @@ public class RocketNetInstance
 		_self = RocketNetNative.abi_GetInstance();
 	}
 
-	public bool StartHost(ushort Port, string Password)
-	{
-		return RocketNetNative.abi_StartHost(_self, Port, Marshal.StringToHGlobalAnsi(Password));
-	}
+	// --------------------------------------------------------------------------------------------
+	// Connection management functions
+	// --------------------------------------------------------------------------------------------
 
-	public bool StartClient(string address, ushort Port, string Password)
+	// This function Hosts a new connection using the Port and optional Password provided
+	public string StartHost(ushort Port, string Password)
 	{
-		return RocketNetNative.abi_StartClient(_self, Marshal.StringToHGlobalAnsi(address), Port, Marshal.StringToHGlobalAnsi(Password));
+		var errorMessage = RocketNetNative.abi_StartHost(_self, Port, Marshal.StringToHGlobalAnsi(Password));
+		return errorMessage.ToString();
 	}
-
+	// This function joins an existing connection using the Address, Port and optional Password provided
+	public string StartClient(string address, ushort Port, string Password)
+	{
+		var errorMessage = RocketNetNative.abi_StartClient(_self, Marshal.StringToHGlobalAnsi(address), Port, Marshal.StringToHGlobalAnsi(Password));
+		return errorMessage.ToString();
+	}
+	// This function ends an existing connection - can be used by Host and Client
 	public bool EndConnection()
 	{
 		return RocketNetNative.abi_EndConnection(_self);
 	}
+	// This function returns whether or not we are currently connected
 	public bool IsConnected()
 	{
 		return RocketNetNative.abi_IsConnected(_self);
 	}
-	public bool ProcessPendingHostPackets()
+	// This function returns whether or not we are Hosting this connection or joined an existing connection
+	public bool IsHost()
 	{
-		return RocketNetNative.abi_ProcessPendingHostPackets(_self);
+		return RocketNetNative.abi_IsHost(_self);
 	}
-	public bool ProcessPendingClientPackets()
+
+	public bool GetConnectionGUIDs()
 	{
-		return RocketNetNative.abi_ProcessPendingClientPackets(_self);
+		Int32 numConnections = 0;
+		IntPtr firstConnectionPtr = IntPtr.Zero;
+		var methodResult = RocketNetNative.abi_GetConnectionGUIDs(_self, ref numConnections, ref firstConnectionPtr);
+		return methodResult;
 	}
-	/*
-	static extern void HandleNewRocketNetPacket();
-	*/
-	public void SendDataToConnection(int ConnectionIndex, IntPtr Data, bool bReliable, int PacketID)
+
+	// --------------------------------------------------------------------------------------------
+	// Receive packets
+	// --------------------------------------------------------------------------------------------
+
+	// This function processes all packets and returns an array of unhandled packets which should be handled manually by this connection
+	public bool FetchPendingPackets()
 	{
-		RocketNetNative.abi_SendDataToConnection(_self, ConnectionIndex, Data, bReliable, PacketID);
+		Int32 numPendingPackets = 0;
+		IntPtr firstPacketPtr = IntPtr.Zero;
+		var methodResult = RocketNetNative.abi_FetchPendingPackets(_self, ref numPendingPackets, ref firstPacketPtr);
+		return methodResult;
 	}
-	public void SendDataToAllConnections(IntPtr Data, bool bReliable, int PacketID)
+	// This function clears the list of pending packets
+	public void ClearPendingPackets()
 	{
-		RocketNetNative.abi_SendDataToAllConnections(_self, Data, bReliable, PacketID);
+		RocketNetNative.abi_ClearPendingPackets(_self);
 	}
-	public void SendDataToHost(IntPtr Data, bool bReliable, int PacketID)
+
+	// --------------------------------------------------------------------------------------------
+	// Send packets
+	// --------------------------------------------------------------------------------------------
+
+	// This function is used to send a packet to a connection using it's 64bit Connection GUID identifier
+	public void SendDataToConnection(UInt64 ConnectionGUID, IntPtr data, bool bReliable, int packetID)
 	{
-		RocketNetNative.abi_SendDataToHost(_self, Data, bReliable, PacketID);
+		RocketNetNative.abi_SendDataToConnection(_self, ConnectionGUID, data, bReliable, packetID);
 	}
-	
-	/*
-	public void SendDataToAllConnections(byte* Data, bool bReliable, int PacketID)
+	// This function is used to send a packet to all connections
+	public void SendDataToAllConnections(IntPtr data, bool bReliable, int packetID)
 	{
-		SendDataToAllConnections(Cast("RocketNet"), Data, bReliable, PacketID);
+		RocketNetNative.abi_SendDataToAllConnections(_self, data, bReliable, packetID);
 	}
-	public void SendDataToHost(IntPtr Data, bool bReliable, int PacketID)
+	// This function is used to send a packet to the Host of our connection
+	public void SendDataToHost(IntPtr data, bool bReliable, int packetID)
 	{
-		abi_SendDataToHost(Cast("RocketNet"), Data, bReliable, PacketID);
+		RocketNetNative.abi_SendDataToHost(_self, data, bReliable, packetID);
 	}
-	 */
 }
