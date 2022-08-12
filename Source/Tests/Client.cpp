@@ -6,24 +6,21 @@
 
 #include "library.h"
 
-void HandlePendingPackets(std::vector<TPendingRocketNetPacket>& PendingPackets)
+void HandlePendingPacket(TPendingRocketNetPacket* unhandledPacket)
 {
-	for (auto& packet : PendingPackets)
+	switch (unhandledPacket->packetID)
 	{
-		switch (packet.packetID)
-		{
-			// Packets clients shouldn't be receiving
-			case RocketNetReservedIDStart:
-			case RocketNetChangeName:
-				assert(false);
-				break;
-			// Packets clients need to handle
-			case RocketNetSendMessage:
-				{
-					std::cout << packet.data << std::endl;
-				}
-				break;
-		}
+		// Packets clients shouldn't be receiving
+		case RocketNetReservedIDStart:
+		case RocketNetChangeName:
+			assert(false);
+			break;
+		// Packets clients need to handle
+		case RocketNetSendMessage:
+			{
+				std::cout << unhandledPacket->data << std::endl;
+			}
+			break;
 	}
 }
 
@@ -67,9 +64,14 @@ int main(int argc, char** argv)
 		bool bRunning = true;
 		while (bRunning)
 		{
-			Sleep(30);
-			HandlePendingPackets(netInstance.FetchPendingPackets());
-			netInstance.ClearPendingPackets();
+			if (netInstance.CollectPendingPackets())
+			{
+				while (auto unhandledPacket = netInstance.HandleNextPendingPacket())
+				{
+					HandlePendingPacket(unhandledPacket);
+				}
+				netInstance.ClearPendingPackets();
+			}
 
 			if (netInstance.IsConnected())
 			{

@@ -11,7 +11,7 @@
 #define DefaultServerAddress "127.0.0.1"
 #define DefaultServerPort 60000
 #define MaxClients 4
-typedef uint64_t ConnectionGUID;
+typedef long ConnectionGUID;
 #define InvalidGUID ((ConnectionGUID)-1)
 
 // Todo: This should be controlled by the plugin?
@@ -62,11 +62,12 @@ public:
 	bool EndConnection();
 	[[nodiscard]] bool IsConnected() const { return bConnectionSuccess; }
 	[[nodiscard]] bool IsHost() const { return bIsHost && bConnectionSuccess; }
-	std::vector<ConnectionGUID> GetConnectionGUIDs() const;
+	std::vector<ConnectionGUID>& GetConnectionGUIDs();
 
 	// Receive packets
-	std::vector<TPendingRocketNetPacket>& FetchPendingPackets();
-	void ClearPendingPackets(){ pendingPackets.clear(); }
+	bool CollectPendingPackets();
+	TPendingRocketNetPacket* HandleNextPendingPacket();
+	void ClearPendingPackets();
 
 	// Send packets
 	void SendDataToConnection(const ConnectionGUID& connectionGUID, const char* data, bool bReliable, int packetID);
@@ -92,7 +93,9 @@ protected:
 
 	RakNet::RakPeerInterface *peer = nullptr;
 	std::vector<TConnectionInfo> connections;
+	std::vector<ConnectionGUID> connectionGUIDs;
 	std::vector<TPendingRocketNetPacket> pendingPackets;
+	int lastPacketHandled = 0;
 	bool bConnectionSuccess = false;
 	bool bIsHost = false;
 

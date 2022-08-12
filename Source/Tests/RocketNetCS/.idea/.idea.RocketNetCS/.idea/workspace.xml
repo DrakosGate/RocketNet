@@ -13,7 +13,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/198a6261cebc324728dcc4c178edc5f2894123f711722c80e8557cbfd27651/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/52cd844476ec4091838909409447be01a23688/_9e356/VarEnum.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d076177341dba9936ea2f21e27f665ab0217730b389db692733fac9d553fcb/Marshal.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -78,50 +83,5 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/RocketNetInterop/RocketNet.cs</url>
-          <line>50</line>
-          <properties documentPath="C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\RocketNet.cs" initialLine="50" containingFunctionPresentation="method 'GetConnectionGUIDs'">
-            <startOffsets>
-              <option value="1789" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1809" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/RocketNetClient/Program.cs</url>
-          <line>4</line>
-          <properties documentPath="C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetClient\Program.cs" initialLine="4" containingFunctionPresentation="">
-            <startOffsets>
-              <option value="116" />
-            </startOffsets>
-            <endOffsets>
-              <option value="169" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/RocketNetInterop/RocketNet.cs</url>
-          <line>63</line>
-          <properties documentPath="C:\Git\RocketNet\Source\Tests\RocketNetCS\RocketNetInterop\RocketNet.cs" initialLine="63" containingFunctionPresentation="method 'FetchPendingPackets'">
-            <startOffsets>
-              <option value="2385" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2405" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

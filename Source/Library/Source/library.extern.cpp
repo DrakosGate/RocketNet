@@ -38,21 +38,28 @@ extern "C"
 		auto methodResult = object->IsHost();
 		return methodResult;
 	}
-	CSHARP ROCKETNET_API bool CSHARP_RocketNet_GetConnectionGUIDs(RocketNetInstance* object, int32_t& numConnections, ConnectionGUID* firstGUID)
+	CSHARP ROCKETNET_API bool CSHARP_RocketNet_GetConnectionGUIDs(RocketNetInstance* object, int32_t& numConnections, ConnectionGUID*& firstGUID)
 	{
 		auto connectionGUIDs = object->GetConnectionGUIDs();
 		numConnections = connectionGUIDs.size();
-		firstGUID = connectionGUIDs.data();
-		return numConnections > 0;
+		if (numConnections > 0)
+		{
+			firstGUID = &connectionGUIDs[0];
+			return true;
+		}
+
+		return false;
 	}
 
 	// Receive packets
-	CSHARP ROCKETNET_API bool CSHARP_RocketNet_FetchPendingPackets(RocketNetInstance* object, int32_t& numPendingPackets, TPendingRocketNetPacket* firstPacket)
+	CSHARP ROCKETNET_API bool CSHARP_RocketNet_CollectPendingPackets(RocketNetInstance* object)
 	{
-		auto pendingPackets = object->FetchPendingPackets();
-		numPendingPackets = pendingPackets.size();
-		firstPacket = pendingPackets.data();
-		return numPendingPackets > 0;
+		auto methodResult = object->CollectPendingPackets();
+		return methodResult;
+	}
+	CSHARP ROCKETNET_API TPendingRocketNetPacket* CSHARP_RocketNet_HandleNextPendingPacket(RocketNetInstance* object)
+	{
+		return object->HandleNextPendingPacket();
 	}
 	CSHARP ROCKETNET_API void CSHARP_RocketNet_ClearPendingPackets(RocketNetInstance* object)
 	{

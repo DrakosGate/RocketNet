@@ -5,6 +5,14 @@ rocketNet.StartHost(60000, "");
 
 while (true)
 {
-    rocketNet.FetchPendingPackets();
+    var connectionGUIDs = rocketNet.GetConnectionGUIDs();
+    if (rocketNet.CollectPendingPackets())
+    {
+        while (rocketNet.HandleNextPendingPacket())
+        {
+            
+        }
+    }
+
     rocketNet.ClearPendingPackets();
 }

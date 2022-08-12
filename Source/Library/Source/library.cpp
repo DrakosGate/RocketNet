@@ -83,9 +83,9 @@ bool RocketNetInstance::EndConnection()
 	return false;
 }
 
-std::vector<ConnectionGUID> RocketNetInstance::GetConnectionGUIDs() const
+std::vector<ConnectionGUID>& RocketNetInstance::GetConnectionGUIDs()
 {
-	std::vector<ConnectionGUID> connectionGUIDs;
+	connectionGUIDs.clear();
 	for (const auto& connection : connections)
 	{
 		connectionGUIDs.push_back(connection.connectionGUID);
@@ -102,7 +102,7 @@ std::string RocketNetInstance::GetNameForConnection(const ConnectionGUID& connec
 	return "";
 }
 
-std::vector<TPendingRocketNetPacket>& RocketNetInstance::FetchPendingPackets()
+bool RocketNetInstance::CollectPendingPackets()
 {
 	// Listen for packets while running
 	RakNet::Packet* Packet = nullptr;
@@ -154,7 +154,25 @@ std::vector<TPendingRocketNetPacket>& RocketNetInstance::FetchPendingPackets()
 		}
 	}
 
-	return pendingPackets;
+	return pendingPackets.size() > 0;
+}
+
+TPendingRocketNetPacket* RocketNetInstance::HandleNextPendingPacket()
+{
+	if (lastPacketHandled < pendingPackets.size())
+	{
+		TPendingRocketNetPacket* nextUnhandledPacket = &pendingPackets[lastPacketHandled];
+		++lastPacketHandled;
+		return nextUnhandledPacket;
+	}
+
+	return nullptr;
+}
+
+void RocketNetInstance::ClearPendingPackets()
+{
+	lastPacketHandled = 0;
+	pendingPackets.clear();
 }
 
 void RocketNetInstance::HandleNewRocketNetPacket(RakNet::Packet* packet)

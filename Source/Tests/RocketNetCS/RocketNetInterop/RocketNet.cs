@@ -2,6 +2,17 @@
 
 namespace RocketNet;
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct RocketNetPacket
+{
+	public Int32 dataLength;
+	// SizeParamIndex=0 means it will use the first variable (dataLength) as the size of this data char array
+	[MarshalAs(UnmanagedType.LPStr, SizeParamIndex=0)]  
+	public char[] data;
+	public Int32 packetID;
+	public long senderGUID;
+};
+
 public class RocketNetInstance
 {
 	private IntPtr _self;
@@ -43,25 +54,44 @@ public class RocketNetInstance
 		return RocketNetNative.abi_IsHost(_self);
 	}
 
-	public bool GetConnectionGUIDs()
+	public long[] GetConnectionGUIDs()
 	{
 		Int32 numConnections = 0;
 		IntPtr firstConnectionPtr = IntPtr.Zero;
-		var methodResult = RocketNetNative.abi_GetConnectionGUIDs(_self, ref numConnections, ref firstConnectionPtr);
-		return methodResult;
+		RocketNetNative.abi_GetConnectionGUIDs(_self, ref numConnections, ref firstConnectionPtr);
+
+		long[] outConnectionGUIDs = new long[numConnections];
+		if (numConnections > 0 && firstConnectionPtr != IntPtr.Zero)
+		{
+			//Marshal.Copy(firstConnectionPtr, outConnectionGUIDs, 0, numConnections * sizeof(long));
+			int x = 0;
+			++x;
+		}
+
+		return outConnectionGUIDs;
 	}
 
 	// --------------------------------------------------------------------------------------------
 	// Receive packets
 	// --------------------------------------------------------------------------------------------
 
-	// This function processes all packets and returns an array of unhandled packets which should be handled manually by this connection
-	public bool FetchPendingPackets()
+	// This function checks for any unhandled pending packets and returns true if unhandled packets are found
+	public bool CollectPendingPackets()
 	{
-		Int32 numPendingPackets = 0;
-		IntPtr firstPacketPtr = IntPtr.Zero;
-		var methodResult = RocketNetNative.abi_FetchPendingPackets(_self, ref numPendingPackets, ref firstPacketPtr);
+		var methodResult = RocketNetNative.abi_CollectPendingPackets(_self);
 		return methodResult;
+	}
+	// This function processes all packets and returns an array of unhandled packets which should be handled manually by this connection
+	public bool HandleNextPendingPacket()
+	{
+		IntPtr unhandledPacketPtr = RocketNetNative.abi_HandleNextPendingPacket(_self);
+		if (unhandledPacketPtr != IntPtr.Zero)
+		{
+			var rocketNetPacket = Marshal.PtrToStructure<RocketNetPacket>(unhandledPacketPtr);
+			return true;
+		}
+
+		return false;
 	}
 	// This function clears the list of pending packets
 	public void ClearPendingPackets()
@@ -74,7 +104,7 @@ public class RocketNetInstance
 	// --------------------------------------------------------------------------------------------
 
 	// This function is used to send a packet to a connection using it's 64bit Connection GUID identifier
-	public void SendDataToConnection(UInt64 ConnectionGUID, IntPtr data, bool bReliable, int packetID)
+	public void SendDataToConnection(long ConnectionGUID, IntPtr data, bool bReliable, int packetID)
 	{
 		RocketNetNative.abi_SendDataToConnection(_self, ConnectionGUID, data, bReliable, packetID);
 	}
