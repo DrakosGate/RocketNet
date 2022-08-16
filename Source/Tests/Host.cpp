@@ -14,7 +14,7 @@ void HandlePendingPacket(TPendingRocketNetPacket* unhandledPacket)
 	switch (unhandledPacket->packetID)
 	{
 		// Packets we shouldn't be handling
-		case RocketNetReservedIDStart:
+		default:
 			assert(false);
 			break;
 		// Packets we should be handling

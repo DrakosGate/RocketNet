@@ -11,14 +11,13 @@
 #define DefaultServerAddress "127.0.0.1"
 #define DefaultServerPort 60000
 #define MaxClients 4
-typedef long ConnectionGUID;
+typedef int64_t ConnectionGUID;
 #define InvalidGUID ((ConnectionGUID)-1)
 
 // Todo: This should be controlled by the plugin?
-enum ERocketNetReservedMessageIDs
+enum ERocketNetReservedPacketIDs
 {
-	RocketNetReservedIDStart = ID_USER_PACKET_ENUM,
-	RocketNetSendMessage,
+	RocketNetSendMessage = 0,
 	RocketNetChangeName
 };
 

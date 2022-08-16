@@ -184,7 +184,8 @@ void RocketNetInstance::HandleNewRocketNetPacket(RakNet::Packet* packet)
 	inStream.Read(inString);
 
 	// Add the extracted data with packet ID and sender GUID to the list of pending packets to be handled later
-	pendingPackets.emplace_back(TPendingRocketNetPacket(inString.C_String(), inString.GetLength(), packet->data[0], packet->guid.g));
+	const int packetID = packet->data[0] - ID_USER_PACKET_ENUM;
+	pendingPackets.emplace_back(TPendingRocketNetPacket(inString.C_String(), inString.GetLength(), packetID, packet->guid.g));
 }
 
 const TConnectionInfo* RocketNetInstance::GetConnectionInfoForGUID(const ConnectionGUID& connectionGuid) const
@@ -213,8 +214,13 @@ void RocketNetInstance::SendDataToConnection(const ConnectionGUID& connectionGUI
 
 void RocketNetInstance::SendDataToConnection(const RakNet::SystemAddress& address, const char* data, bool bReliable, int packetID)
 {
+	if (packetID < 0)
+	{
+		assert(false && "RocketNet: packetID should always be greater than 0 to avoid sending packets that imitate RakNet packets");
+		return;
+	}
 	RakNet::BitStream outStream;
-	outStream.Write((RakNet::MessageID)packetID);
+	outStream.Write((RakNet::MessageID)(packetID + ID_USER_PACKET_ENUM));
 	outStream.Write(data);
 	int Result = peer->Send(&outStream, HIGH_PRIORITY, bReliable ? RELIABLE_ORDERED : UNRELIABLE_SEQUENCED, 0, address, false);
 	assert(Result != 0);

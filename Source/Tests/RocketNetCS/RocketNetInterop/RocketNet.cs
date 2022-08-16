@@ -1,14 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace RocketNet;
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
+[StructLayout(LayoutKind.Sequential)]
 public struct RocketNetPacket
 {
 	public Int32 dataLength;
-	// SizeParamIndex=0 means it will use the first variable (dataLength) as the size of this data char array
-	[MarshalAs(UnmanagedType.LPStr, SizeParamIndex=0)]  
-	public char[] data;
+	public IntPtr data;
 	public Int32 packetID;
 	public long senderGUID;
 };
@@ -54,18 +53,19 @@ public class RocketNetInstance
 		return RocketNetNative.abi_IsHost(_self);
 	}
 
-	public long[] GetConnectionGUIDs()
+	public Int64[] GetConnectionGUIDs()
 	{
 		Int32 numConnections = 0;
 		IntPtr firstConnectionPtr = IntPtr.Zero;
 		RocketNetNative.abi_GetConnectionGUIDs(_self, ref numConnections, ref firstConnectionPtr);
 
-		long[] outConnectionGUIDs = new long[numConnections];
+		Int64[] outConnectionGUIDs = new Int64[numConnections];
 		if (numConnections > 0 && firstConnectionPtr != IntPtr.Zero)
 		{
-			//Marshal.Copy(firstConnectionPtr, outConnectionGUIDs, 0, numConnections * sizeof(long));
-			int x = 0;
-			++x;
+			for (int i = 0; i < numConnections; ++i)
+			{
+				outConnectionGUIDs[i] = Marshal.ReadInt64(firstConnectionPtr);
+			}
 		}
 
 		return outConnectionGUIDs;
@@ -82,12 +82,12 @@ public class RocketNetInstance
 		return methodResult;
 	}
 	// This function processes all packets and returns an array of unhandled packets which should be handled manually by this connection
-	public bool HandleNextPendingPacket()
+	public bool HandleNextPendingPacket(ref RocketNetPacket unhandledPacket)
 	{
 		IntPtr unhandledPacketPtr = RocketNetNative.abi_HandleNextPendingPacket(_self);
 		if (unhandledPacketPtr != IntPtr.Zero)
 		{
-			var rocketNetPacket = Marshal.PtrToStructure<RocketNetPacket>(unhandledPacketPtr);
+			unhandledPacket = Marshal.PtrToStructure<RocketNetPacket>(unhandledPacketPtr);
 			return true;
 		}
 
